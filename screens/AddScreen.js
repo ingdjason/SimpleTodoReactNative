@@ -1,27 +1,29 @@
 import * as React from 'react';
-import { TextInput, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { AsyncStorage, TextInput, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import { Input, Icon, Button, Divider, FormLabel, FormInput, FormValidationMessage } from 'react-native-elements'
+import { Icon, Divider } from 'react-native-elements'
 
 export default function AddScreen(props) {
  
   const [values, setValues] = React.useState({title: ''})
   
-
-  const submitData = (e)=> {
+  const submitData = async (e)=> {
     e.preventDefault();
+    let date = new Date();
     let d = [...props.data];
-    d.push({id: d.length+1, checked: false, ...values})
-    props.setData(d);
+    await d.push({id: d.length+1, checked: false, ...values, date})
+    await props.setData(d);
+    await AsyncStorage.setItem("data", JSON.stringify(d));
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.containerForm}>
         <View style={styles.inputView}>
-          <TextInput
+
+          <TextInput 
             style={styles.inputText}
             placeholder="Todo title here..."
             placeholderTextColor="#003f5c"

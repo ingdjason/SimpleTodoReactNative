@@ -9,6 +9,7 @@ export default function(containerRef) {
         path: 'root',
         screens: {
           Home: 'home',
+          Add: 'add',
           Links: 'links',
           Settings: 'settings',
         },

@@ -1,43 +1,114 @@
 import * as React from 'react';
-import { FlatList, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Share, Dimensions, AsyncStorage, FlatList, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as WebBrowser from 'expo-web-browser';
-import { CheckBox, Input, Card, ListItem, Button, Icon } from 'react-native-elements'
+import { Card, Icon } from 'react-native-elements'
 import { MonoText } from '../components/StyledText';
 
-function Item( {onCheckedItem, item, index} ){
+const {height, width} = Dimensions.get('window'); //screen
+const FIXED_WIDTH = width - 40;
+
+function customDate(item_date){
+  if(item_date === undefined){ return }
+
+  let date = new Date(item_date);
+  let arrayMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Nov', 'Dec'];
+  let day = date.getDate()< 10 ? `0${date.getDate()}` : date.getDate();
+  let month = arrayMonth[date.getMonth()];
+
+  return `${month}, ${day}-${date.getFullYear()}`
+}
+
+function Item( {functionList, item, index} ){
   
   return(
-    <View key={index}>
-      <TouchableOpacity onPress={ e => onCheckedItem(e, item, index) }>
-        <Card>
-          <Icon
-            name='favorite'
-            size={15}
-            color={item.checked ? 'red' : 'gray'}
-          />
-          <Text style={item.checked ? styles.todoCheked: styles.todoUncheked}>
-            {item.title}
-          </Text>
-        </Card>
-      </TouchableOpacity>
+    <View key={index}  style={{ alignItems: 'center', flex: 1, margin: 5, width: FIXED_WIDTH}} >
+        <View style={{width: FIXED_WIDTH}}> 
+          <Card>
+            <TouchableOpacity onPress={ e => functionList.onCheckedItem(e, index) }>
+              <View>
+                <Text style={item.checked ? styles.todoCheked: styles.todoUncheked}>
+                  <Icon
+                    name={item.checked ? 'check' : 'close'}
+                    size={15}
+                    color={item.checked ? 'red' : 'gray'}
+                  />
+                  {item.title}
+                </Text> 
+                <View style={{display: 'flex', flexDirection: 'row'}}>
+                  <Text style={{color: '#cfd3e1', fontSize: 10, flex:50, alignContent: 'flex-start', textAlign: 'left'}}>
+                    {customDate(item.date)}
+                  </Text>
+                  <Text style={{color: '#9eaeb5', fontSize: 10, flex:50, alignContent: 'flex-end', textAlign: 'right'}}>
+                    Due: ...
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+              <TouchableOpacity onPress={ e => functionList.onTrashItem(e, index) }>
+                <Icon
+                  name="delete"
+                  size={15}
+                  color="gray"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={ e => functionList.onShareItem(e, index)}>
+                <Icon
+                  name="share"
+                  size={15}
+                  color="gray"
+                />
+              </TouchableOpacity>
+            </View>
+          </Card>
+        </View>
     </View>
   )
 }
 
 export default function HomeScreen(props) {
-
-  console.log('props_>',props.data)
-
-
-  const onCheckedItem = (e, item, index)=> {
+  
+  const onCheckedItem = async (e, index)=> {
     e.preventDefault();
+
     let d = [...props.data];
     d[index].checked = !d[index].checked;
-    props.setData(d);
+    await props.setData(d);
+    await AsyncStorage.setItem("data", JSON.stringify(d));
   }
 
-  const [ref, setRef]= React.useState(true);
+  const onTrashItem= async (e, index)=> {
+    e.preventDefault();
+    let d = [...props.data];
+    await d.splice(index, 1)
+    await props.setData(d);
+    await AsyncStorage.setItem("data", JSON.stringify(d));
+  }
+
+  const onShareItem = (e, index)=> {
+    e.preventDefault();
+    let d = [...props.data][index];
+    
+    Share.share({
+      message: `${d.title}`,
+      url: '',
+      title: `${d.title}`,
+    })
+      .then((result)=>{
+      //result.action === Share.sharedAction
+        // -> result.activityType
+      //result.action === Share.dismissedAction
+      })
+      .catch(error=> console.log('**error**'))
+  }
+
+  const handleNavigateAdd = ()=> {
+    props.navigation.navigate('Add');
+  }
+
+  const [refresh, setRefresh]= React.useState(false);
+  const objFuncEvent = {onCheckedItem, onTrashItem, onShareItem}
 
   return (
     <View style={styles.container}>
@@ -45,28 +116,36 @@ export default function HomeScreen(props) {
         <View style={styles.welcomeContainer}>
           <Image
             source={
-              __DEV__
-                ? require('../assets/images/robot-dev.png')
-                : require('../assets/images/robot-prod.png')
+              require('../assets/images/to-do-list.svg')
             }
             style={styles.welcomeImage}
           />
         </View>
 
         <View style={styles.getStartedContainer}>
+          {
+            props.data.length ?
+            <></>
+            :
+            <TouchableOpacity onPress={handleNavigateAdd}>
+              <Text style={{fontSize: 14, color: '#d5e4f0', textAlign: 'center', }}> Blank list, click to <span style={{color: 'green'}}>Add </span> a new item</Text>
+            </TouchableOpacity>
+            
+          }
+          {/* numColumns={2} */}
           <FlatList
             data={props.data}
-            refreshing={ref}
-            onRefresh={ ()=> { console.log('refresh.?')} }
+            refreshing={refresh}
+            onRefresh={ ()=> { setRefresh(true); console.log('ok with')} }
             extraData={props.data}
-            renderItem={ ({ item, index }) => <Item onCheckedItem={onCheckedItem} item={item} index={index} />}
-            keyExtractor={ item => item.id}
+            renderItem={ ({ item, index }) => <Item functionList={objFuncEvent} item={item} index={index} />}
+            keyExtractor={ item => item.id.toString()}
           />
         </View>
 
         <View style={styles.helpContainer}>
           <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
+            <Text style={styles.helpLinkText}>See this project on Github!</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -80,7 +159,7 @@ HomeScreen.navigationOptions = {
 
 function handleHelpPress() {
   WebBrowser.openBrowserAsync(
-    'https://docs.expo.io/versions/latest/get-started/create-a-new-app/#making-your-first-change'
+    'https://github.com/ingdjason/SimpleTodoReactNative/'
   );
 }
 
@@ -183,4 +262,11 @@ const styles = StyleSheet.create({
     marginBottom: 10, 
     color: 'black'
   }
-});
+}); 
+
+{/* 
+  style={{flex:1, flexDirection:'column', justifyContent:'center'}} 
+    style={{flexDirection:'row'}}
+      ->style={{flex:0.8, borderWidth:1, height:20}} (flex: 60)
+      -> style={{flex:0.2}} (flex: 40)
+*/}

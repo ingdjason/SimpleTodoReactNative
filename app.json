@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Tab Navigation Template",
+    "name": "Simple ToDo",
     "slug": "expodemoapp",
     "privacy": "public",
     "sdkVersion": "36.0.0",

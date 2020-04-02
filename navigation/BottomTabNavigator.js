@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { AsyncStorage } from 'react-native';
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import AddScreen from '../screens/AddScreen';
@@ -13,23 +14,15 @@ export default function BottomTabNavigator({ navigation, route }) {
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
   navigation.setOptions({ headerTitle: getHeaderTitle(route) });
-  const [data, setData] = React.useState([
-    {
-      id: '1',
-      title: 'The idea with React Native Elements is more about component structure than actual design.',
-      checked: true,
-    },
-    {
-      id: '2',
-      title: 'React Native Elements is more about component structure than actual design',
-      checked: false,
-    },
-    {
-      id: '3',
-      title: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.',
-      checked: false,
-    },
-  ]);
+  const [data, setData] = React.useState([]);//id title checked
+  React.useEffect(()=>{
+    async function fetchData(){
+      const dvalue = await AsyncStorage.getItem("data"); 
+      if(dvalue){ await setData(JSON.parse(dvalue)); }
+    }
+    
+    fetchData();
+  }, [])
 
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
@@ -53,7 +46,7 @@ export default function BottomTabNavigator({ navigation, route }) {
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-add-circle" />,
         }}
       />
-      <BottomTab.Screen
+      {/* <BottomTab.Screen
         name="Profil"
         component={(props)=>{
           return(<ProfilScreen  {...props} />)
@@ -62,7 +55,7 @@ export default function BottomTabNavigator({ navigation, route }) {
           title: 'Profil',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-person" />,
         }}
-      />
+      /> */}
     </BottomTab.Navigator>
   );
 }
