@@ -1,0 +1,90 @@
+{/* numColumns={2} */}
+{/* secureTextEntry={true} */}
+{/* 
+  style={{flex:1, flexDirection:'column', justifyContent:'center'}} 
+    style={{flexDirection:'row'}}
+      ->style={{flex:0.8, borderWidth:1, height:20}} (flex: 60)
+      -> style={{flex:0.2}} (flex: 40)
+*/}
+
+
+      //result.action === Share.sharedAction
+        // -> result.activityType
+      //result.action === Share.dismissedAction
+
+      {/* <BottomTab.Screen
+        name="Profil"
+        component={(props)=>{
+          return(<ProfilScreen  {...props} />)
+        }}
+        options={{
+          title: 'Profil',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-person" />,
+        }}
+      /> */}
+
+
+      // Set the header title on the parent stack navigator depending on the
+  // currently active tab. Learn more in the documentation:
+  // https://reactnavigation.org/docs/en/screen-options-resolution.html
+
+  <Divider style={{ backgroundColor: 'blue' }} />
+
+  <TouchableOpacity style={styles.loginBtn} onPress={submitData}>
+          <View>
+            <Icon
+              name="save"
+              size={15}
+              color="#000"
+            />
+            <Text style={styles.loginText}>Save</Text>
+          </View>
+        </TouchableOpacity>
+
+        {
+            props.data.length ?
+            <Text></Text>
+            :
+            <TouchableOpacity onPress={handleNavigateAdd}>
+              <Text style={{fontSize: 14, color: '#d5e4f0', textAlign: 'center', }}> Blank list, click to <Text style={{color: 'green'}}>Add </Text> a new item</Text>
+            </TouchableOpacity>
+            
+          }
+
+
+          <TouchableOpacity onPress={ e => functionList.onCheckedItem(e, index) }>
+              <View>
+                <Text style={item.checked ? styles.todoCheked: styles.todoUncheked}>
+                  <Icon
+                    name={item.checked ? 'check' : 'close'}
+                    size={15}
+                    color={item.checked ? 'red' : 'gray'}
+                  />
+                  {item.title}
+                </Text> 
+                <View style={{display: 'flex', flexDirection: 'row'}}>
+                  <Text style={{color: '#cfd3e1', fontSize: 10, flex:50, alignContent: 'flex-start', textAlign: 'left'}}>
+                    {customDate(item.date)}
+                  </Text>
+                  <Text style={{color: '#9eaeb5', fontSize: 10, flex:50, alignContent: 'flex-end', textAlign: 'right'}}>
+                    Due: ...
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+              <TouchableOpacity onPress={ e => functionList.onTrashItem(e, index) }>
+                <Icon
+                  name="delete"
+                  size={15}
+                  color="gray"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={ e => functionList.onShareItem(e, index)}>
+                <Icon
+                  name="share"
+                  size={15}
+                  color="gray"
+                />
+              </TouchableOpacity>
+            </View>

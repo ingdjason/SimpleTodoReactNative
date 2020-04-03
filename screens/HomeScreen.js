@@ -26,37 +26,39 @@ function Item( {functionList, item, index} ){
         <View style={{width: FIXED_WIDTH}}> 
           <Card>
             <TouchableOpacity onPress={ e => functionList.onCheckedItem(e, index) }>
-              <View>
-                <Text style={item.checked ? styles.todoCheked: styles.todoUncheked}>
+              <View style={{display: 'flex', flexDirection: 'row'}}>
+                <View>
                   <Icon
                     name={item.checked ? 'check' : 'close'}
                     size={15}
                     color={item.checked ? 'red' : 'gray'}
                   />
+                </View>
+                <Text style={item.checked ? styles.todoCheked: styles.todoUncheked}>
                   {item.title}
                 </Text> 
-                <View style={{display: 'flex', flexDirection: 'row'}}>
-                  <Text style={{color: '#cfd3e1', fontSize: 10, flex:50, alignContent: 'flex-start', textAlign: 'left'}}>
-                    {customDate(item.date)}
-                  </Text>
-                  <Text style={{color: '#9eaeb5', fontSize: 10, flex:50, alignContent: 'flex-end', textAlign: 'right'}}>
-                    Due: ...
-                  </Text>
-                </View>
+              </View>
+              <View style={{display: 'flex', flexDirection: 'row'}}>
+                <Text style={{color: '#cfd3e1', fontSize: 10, flex:50, alignContent: 'flex-start', textAlign: 'left'}}>
+                  {customDate(item.date)}
+                </Text>
+                <Text style={{color: '#9eaeb5', fontSize: 10, flex:50, alignContent: 'flex-end', textAlign: 'right'}}>
+                  Due: ...
+                </Text>
               </View>
             </TouchableOpacity>
             <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-              <TouchableOpacity onPress={ e => functionList.onTrashItem(e, index) }>
+              <TouchableOpacity onPress={ e => functionList.onTrashItem(e, index) } style={{paddingRight: 5}}>
                 <Icon
                   name="delete"
-                  size={15}
+                  size={20}
                   color="gray"
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={ e => functionList.onShareItem(e, index)}>
                 <Icon
                   name="share"
-                  size={15}
+                  size={20}
                   color="gray"
                 />
               </TouchableOpacity>
@@ -69,6 +71,19 @@ function Item( {functionList, item, index} ){
 
 export default function HomeScreen(props) {
   
+  const renderEmptyList = ()=> {
+
+    if(props.data.length){
+      return (<Text></Text>)
+    }
+    
+    return (
+      <TouchableOpacity onPress={handleNavigateAdd}>
+        <Text style={{fontSize: 14, color: '#d5e4f0', textAlign: 'center', }}> Blank list, click to <Text style={{color: 'green'}}>Add </Text> a new item</Text>
+      </TouchableOpacity>
+    )
+  }
+
   const onCheckedItem = async (e, index)=> {
     e.preventDefault();
 
@@ -96,9 +111,7 @@ export default function HomeScreen(props) {
       title: `${d.title}`,
     })
       .then((result)=>{
-      //result.action === Share.sharedAction
-        // -> result.activityType
-      //result.action === Share.dismissedAction
+        alert(result.toString())
       })
       .catch(error=> console.log('**error**'))
   }
@@ -116,23 +129,14 @@ export default function HomeScreen(props) {
         <View style={styles.welcomeContainer}>
           <Image
             source={
-              require('../assets/images/to-do-list.svg')
+              require('../assets/images/to_do_list.png')
             }
             style={styles.welcomeImage}
           />
         </View>
 
         <View style={styles.getStartedContainer}>
-          {
-            props.data.length ?
-            <></>
-            :
-            <TouchableOpacity onPress={handleNavigateAdd}>
-              <Text style={{fontSize: 14, color: '#d5e4f0', textAlign: 'center', }}> Blank list, click to <span style={{color: 'green'}}>Add </span> a new item</Text>
-            </TouchableOpacity>
-            
-          }
-          {/* numColumns={2} */}
+          {renderEmptyList()}
           <FlatList
             data={props.data}
             refreshing={refresh}
@@ -255,7 +259,6 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     textDecorationStyle: "solid",
     textDecorationColor: "#000",
-    cursor: 'pointer',
     color: 'red'
   },
   todoUncheked: {
@@ -263,10 +266,3 @@ const styles = StyleSheet.create({
     color: 'black'
   }
 }); 
-
-{/* 
-  style={{flex:1, flexDirection:'column', justifyContent:'center'}} 
-    style={{flexDirection:'row'}}
-      ->style={{flex:0.8, borderWidth:1, height:20}} (flex: 60)
-      -> style={{flex:0.2}} (flex: 40)
-*/}

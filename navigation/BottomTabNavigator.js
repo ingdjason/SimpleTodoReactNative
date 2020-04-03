@@ -10,11 +10,9 @@ const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Home';
 
 export default function BottomTabNavigator({ navigation, route }) {
-  // Set the header title on the parent stack navigator depending on the
-  // currently active tab. Learn more in the documentation:
-  // https://reactnavigation.org/docs/en/screen-options-resolution.html
+  
   navigation.setOptions({ headerTitle: getHeaderTitle(route) });
-  const [data, setData] = React.useState([]);//id title checked
+  const [data, setData] = React.useState([]);
   React.useEffect(()=>{
     async function fetchData(){
       const dvalue = await AsyncStorage.getItem("data"); 
@@ -46,16 +44,6 @@ export default function BottomTabNavigator({ navigation, route }) {
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-add-circle" />,
         }}
       />
-      {/* <BottomTab.Screen
-        name="Profil"
-        component={(props)=>{
-          return(<ProfilScreen  {...props} />)
-        }}
-        options={{
-          title: 'Profil',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-person" />,
-        }}
-      /> */}
     </BottomTab.Navigator>
   );
 }

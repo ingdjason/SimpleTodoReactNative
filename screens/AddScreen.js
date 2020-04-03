@@ -114,6 +114,4 @@ const styles = StyleSheet.create({
   }
 });
 
-
-{/* secureTextEntry={true} */}
                 
